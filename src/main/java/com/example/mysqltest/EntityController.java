@@ -24,16 +24,30 @@ public class EntityController {
     @Autowired
     private EntityService entityService;
 
-    @RequestMapping (method = RequestMethod.POST, consumes={MediaType.MULTIPART_FORM_DATA_VALUE},
-            produces={MediaType.APPLICATION_JSON_VALUE})
-    public @ResponseBody CompletableFuture<List<BenchmarkEntity>> addNewData (@RequestParam int year, @RequestParam double temp){
-        try {
-            return entityService.saveTemps(year,temp);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+//    @RequestMapping (method = RequestMethod.POST, consumes={MediaType.MULTIPART_FORM_DATA_VALUE},
+//            produces={MediaType.APPLICATION_JSON_VALUE})
+//    public @ResponseBody CompletableFuture<List<BenchmarkEntity>> addNewData (@RequestParam int year, @RequestParam double temp){
+//        try {
+//            return entityService.saveTemps(year,temp);
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
+@RequestMapping(
+        method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE
+)
+public @ResponseBody CompletableFuture<List<BenchmarkEntity>> addNewData(
+        @RequestBody JsonRequest jsonRequest
+) {
+    try {
+        // Assuming you have a method to handle the list of temperature data
+        return entityService.saveTemps(jsonRequest.getTemperatureData());
+    } catch (Exception e) {
+        throw new RuntimeException(e);
     }
-
+}
 
 
 
