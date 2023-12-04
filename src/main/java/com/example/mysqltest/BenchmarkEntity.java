@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.Serializable;
 
 @Entity
+@Table(name = "tempatures")
 public class BenchmarkEntity implements Serializable{
     private static final long serialVersionUID = 1L;
     @Id

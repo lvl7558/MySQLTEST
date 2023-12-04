@@ -8,9 +8,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/api/temp")
@@ -38,17 +42,25 @@ public class EntityController {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     };
 
-    @RequestMapping (method = RequestMethod.GET, consumes={MediaType.APPLICATION_JSON_VALUE},
-            produces={MediaType.APPLICATION_JSON_VALUE})
-    public @ResponseBody ResponseEntity getAllTemps() {
+    @RequestMapping(method = RequestMethod.GET)
+    public @ResponseBody ResponseEntity<List<BenchmarkEntity>> getAllTemps() {
         try {
-            CompletableFuture<List<BenchmarkEntity>> cars1=entityService.getAllTemps();
-            CompletableFuture<List<BenchmarkEntity>> cars2=entityService.getAllTemps();
-            CompletableFuture<List<BenchmarkEntity>> cars3=entityService.getAllTemps();
-            CompletableFuture.allOf(cars1, cars2, cars3).join();
-            return ResponseEntity.status(HttpStatus.OK).build();
-        } catch(final Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            CompletableFuture<List<BenchmarkEntity>> cars1 = entityService.getAllTemps();
+            CompletableFuture<List<BenchmarkEntity>> cars2 = entityService.getAllTemps();
+            CompletableFuture<List<BenchmarkEntity>> cars3 = entityService.getAllTemps();
+
+            CompletableFuture<Void> allOf = CompletableFuture.allOf(cars1, cars2, cars3);
+            allOf.join(); // Wait for all futures to complete
+
+            List<BenchmarkEntity> result = allOf.thenApply(v ->
+                    Stream.of(cars1.join(), cars2.join(), cars3.join())
+                            .flatMap(List::stream)
+                            .collect(Collectors.toList())
+            ).join();
+
+            return ResponseEntity.status(HttpStatus.OK).body(result);
+        } catch (CompletionException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
         }
     }
 }

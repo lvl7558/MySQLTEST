@@ -74,7 +74,7 @@ public CompletableFuture<List<BenchmarkEntity>> saveTemps(int year
     @Async
     public CompletableFuture<List<BenchmarkEntity>> getAllTemps() {
 
-        LOGGER.info("Request to get a list of cars");
+        LOGGER.info("Request to get a list of temps");
 
         final List<BenchmarkEntity> cars = benchmarkRepository.findAll();
         return CompletableFuture.completedFuture(cars);
