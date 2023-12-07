@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.StructuredTaskScope;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -39,6 +38,7 @@ public class EntityService {
 //        return CompletableFuture.completedFuture(list);
 //    }
 
+//@Async
 public CompletableFuture<List<BenchmarkEntity>> saveTemps(List<JsonRequest.TemperatureData> temperatureData) throws Exception {
     final long start = System.currentTimeMillis();
     List<BenchmarkEntity> entitiesToSave = temperatureData.stream()
@@ -83,19 +83,30 @@ public CompletableFuture<List<BenchmarkEntity>> saveTemps(List<JsonRequest.Tempe
 //    }
 
 
-    public CompletableFuture<List<BenchmarkEntity>> getAllTemps() {
-        List<BenchmarkEntity> temps;
-        Thread run = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                LOGGER.info("Request to get a list of temps");
+//    public CompletableFuture<List<BenchmarkEntity>> getAllTemps() {
+//        List<BenchmarkEntity> temps;
+//        Thread run = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                LOGGER.info("Request to get a list of temps");
+//
+//                temps = benchmarkRepository.findAll();
+//
+//            }
+//        },"Thead-");
+//        run.start();
+//        return CompletableFuture.completedFuture(temps);
+//    }
 
-                temps = benchmarkRepository.findAll();
 
-            }
-        },"Thead-");
-        run.start();
-        return CompletableFuture.completedFuture(temps);
-    }
+
+//@Async
+public CompletableFuture<List<BenchmarkEntity>> getAllTemps() {
+
+    LOGGER.info("Request to get a list of temps");
+
+    final List<BenchmarkEntity> cars = benchmarkRepository.findAll();
+    return CompletableFuture.completedFuture(cars);
+}
 
 }

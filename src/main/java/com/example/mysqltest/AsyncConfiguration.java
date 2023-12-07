@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import java.util.concurrent.Executor;
 @Configuration
-@EnableAsync
+//@EnableAsync
 public class AsyncConfiguration {
     private static final Logger LOGGER = LoggerFactory.getLogger(AsyncConfiguration.class);
     @Bean (name = "taskExecutor")
