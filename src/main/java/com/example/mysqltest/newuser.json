@@ -1,0 +1,16 @@
+{
+  "temperatureData": [
+    {
+      "temp": 25.5,
+      "year": 2023
+    },
+    {
+      "temp": 23.0,
+      "year": 2022
+    },
+    {
+      "temp": 28.7,
+      "year": 2021
+    }
+  ]
+}

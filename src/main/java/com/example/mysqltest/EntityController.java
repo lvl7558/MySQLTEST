@@ -65,7 +65,7 @@ public @ResponseBody CompletableFuture<List<BenchmarkEntity>> addNewData(
 
             CompletableFuture<Void> allOf = CompletableFuture.allOf(cars1, cars2, cars3);
             allOf.join(); // Wait for all futures to complete
-
+            //remove the joining
             List<BenchmarkEntity> result = allOf.thenApply(v ->
                     Stream.of(cars1.join(), cars2.join(), cars3.join())
                             .flatMap(List::stream)

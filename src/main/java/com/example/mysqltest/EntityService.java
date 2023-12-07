@@ -9,6 +9,9 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.StructuredTaskScope;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -35,7 +38,7 @@ public class EntityService {
 //        LOGGER.info("Elapsed time: {}", (System.currentTimeMillis() - start));
 //        return CompletableFuture.completedFuture(list);
 //    }
-@Async
+
 public CompletableFuture<List<BenchmarkEntity>> saveTemps(List<JsonRequest.TemperatureData> temperatureData) throws Exception {
     final long start = System.currentTimeMillis();
     List<BenchmarkEntity> entitiesToSave = temperatureData.stream()
@@ -45,13 +48,7 @@ public CompletableFuture<List<BenchmarkEntity>> saveTemps(List<JsonRequest.Tempe
     List<BenchmarkEntity> savedEntities = benchmarkRepository.saveAll(entitiesToSave);
 
 
-    LOGGER.info("Saving a list of cars of size {} records");
-//    BenchmarkEntity n = new BenchmarkEntity();
-//    n.setYear(year);
-//    n.setTemp(temp);
-//    benchmarkRepository.save(n);
-//    List<BenchmarkEntity> l = new ArrayList<>();
-//    l.add(n);
+
     LOGGER.info("Elapsed time: {}", (System.currentTimeMillis() - start));
     return CompletableFuture.completedFuture(savedEntities);
 }
@@ -85,13 +82,20 @@ public CompletableFuture<List<BenchmarkEntity>> saveTemps(List<JsonRequest.Tempe
 //        }
 //    }
 
-    @Async
+
     public CompletableFuture<List<BenchmarkEntity>> getAllTemps() {
+        List<BenchmarkEntity> temps;
+        Thread run = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                LOGGER.info("Request to get a list of temps");
 
-        LOGGER.info("Request to get a list of temps");
+                temps = benchmarkRepository.findAll();
 
-        final List<BenchmarkEntity> cars = benchmarkRepository.findAll();
-        return CompletableFuture.completedFuture(cars);
+            }
+        },"Thead-");
+        run.start();
+        return CompletableFuture.completedFuture(temps);
     }
 
 }
