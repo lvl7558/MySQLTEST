@@ -8,6 +8,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -20,6 +27,7 @@ import java.util.stream.Stream;
 @RequestMapping("/api/temp")
 public class EntityController {
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityController.class);
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Autowired
     private EntityService entityService;
@@ -38,11 +46,14 @@ public class EntityController {
         consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE
 )
-public @ResponseBody CompletableFuture<List<BenchmarkEntity>> addNewData(
+public @ResponseBody List<BenchmarkEntity> addNewData(
         @RequestBody JsonRequest jsonRequest
 ) {
     try {
         // Assuming you have a method to handle the list of temperature data
+        LOGGER.info("HTTP POST}");
+        LocalDateTime timestamp = LocalDateTime.now();
+        logTimestamp(timestamp);
         return entityService.saveTemps(jsonRequest.getTemperatureData());
     } catch (Exception e) {
         throw new RuntimeException(e);
@@ -59,23 +70,34 @@ public @ResponseBody CompletableFuture<List<BenchmarkEntity>> addNewData(
     @RequestMapping(method = RequestMethod.GET)
     public @ResponseBody ResponseEntity<List<BenchmarkEntity>> getAllTemps() {
         try {
-            CompletableFuture<List<BenchmarkEntity>> cars1 = entityService.getAllTemps();
-            CompletableFuture<List<BenchmarkEntity>> cars2 = entityService.getAllTemps();
-            CompletableFuture<List<BenchmarkEntity>> cars3 = entityService.getAllTemps();
+            LOGGER.info("HTTP GET");
+            final long start = System.currentTimeMillis();
+            LOGGER.info("Start Time: {}", (start));
+            List<BenchmarkEntity> result = (List<BenchmarkEntity>) entityService.getAllTemps();
+            final long end = System.currentTimeMillis();
+            LOGGER.info("Elapsed Time: {}", (end - start));
+            LOGGER.info("End Time: {}", (end));
 
-            CompletableFuture<Void> allOf = CompletableFuture.allOf(cars1, cars2, cars3);
-            allOf.join(); // Wait for all futures to complete
+            if (!Files.exists(Path.of("HTTP_time2.csv"))) {
+                Files.createFile(Path.of("HTTP_time2.csv"));
+            }
 
-            List<BenchmarkEntity> result = allOf.thenApply(v ->
-                    Stream.of(cars1.join(), cars2.join(), cars3.join())
-                            .flatMap(List::stream)
-                            .collect(Collectors.toList())
-            ).join();
-
+            // Add data to CSV file
+            try (BufferedWriter writer = Files.newBufferedWriter(Path.of("HTTP_time2.csv"), StandardOpenOption.APPEND)) {
+                String line = ""+(end - start);
+                writer.write(line);
+                writer.newLine();
+            }
             return ResponseEntity.status(HttpStatus.OK).body(result);
         } catch (CompletionException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+    }
+    private void logTimestamp(LocalDateTime timestamp) {
+        // Log timestamp using SLF4J
+        LOGGER.info("Timestamp recorded: {}", timestamp.format(DATE_TIME_FORMATTER));
     }
 }
 

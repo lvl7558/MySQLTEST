@@ -1,27 +1,23 @@
 package com.example.mysqltest;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 
 import java.util.List;
 
+@Getter
 public class JsonRequest {
     @JsonProperty("temperatureData")
     private List<TemperatureData> temperatureData;
 
+    @Getter
     public static class TemperatureData{
         private int year;
 
         private double temp;
-        public int getYear() {
-            return year;
-        }
 
         public void setYear(int year) {
             this.year = year;
-        }
-
-        public double getTemp() {
-            return temp;
         }
 
         public void setTemp(double temp) {
@@ -29,10 +25,6 @@ public class JsonRequest {
         }
 
 
-    }
-
-    public List<TemperatureData> getTemperatureData() {
-        return temperatureData;
     }
 
     // Constructors, getters, and setters
