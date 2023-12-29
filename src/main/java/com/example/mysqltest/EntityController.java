@@ -39,6 +39,9 @@ public class EntityController {
     @Autowired
     private EntityService entityService;
 
+    @Autowired
+    private BenchmarkRepository benchmarkRepository;
+
 //    @RequestMapping (method = RequestMethod.POST, consumes={MediaType.MULTIPART_FORM_DATA_VALUE},
 //            produces={MediaType.APPLICATION_JSON_VALUE})
 //    public @ResponseBody CompletableFuture<List<BenchmarkEntity>> addNewData (@RequestParam int year, @RequestParam double temp){
@@ -74,21 +77,25 @@ public @ResponseBody List<BenchmarkEntity> addNewData(
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     };
 
-    @RequestMapping(method = RequestMethod.GET)
-    public @ResponseBody ResponseEntity<List<BenchmarkEntity>> getAllTemps() {
-        try {
+//    @RequestMapping(method = RequestMethod.GET)
+//    public @ResponseBody ResponseEntity<List<BenchmarkEntity>> getAllTemps() {
+    @GetMapping
+    public List<BenchmarkEntity> getAllTemps(){
+        //LOGGER.info("HTTP GET Thread info {} ", Thread.currentThread());
+        return benchmarkRepository.findAll();
+//        try {
 
-            LOGGER.info("HTTP GET Thread info {} ", Thread.currentThread());
-            /**
-            LOGGER.info("HTTP GET");
+
+
+            /*LOGGER.info("HTTP GET");
             final long start = System.currentTimeMillis();
             LOGGER.info("Start Time: {}", (start));
             List<BenchmarkEntity> result = (List<BenchmarkEntity>) entityService.getAllTemps();
             final long end = System.currentTimeMillis();
             LOGGER.info("Elapsed Time: {}", (end - start));
-            LOGGER.info("End Time: {}", (end));
+            LOGGER.info("End Time: {}", (end));*/
 
-            if (!Files.exists(Path.of("HTTP_time2.csv"))) {
+            /*if (!Files.exists(Path.of("HTTP_time2.csv"))) {
                 Files.createFile(Path.of("HTTP_time2.csv"));
             }
 
@@ -98,17 +105,31 @@ public @ResponseBody List<BenchmarkEntity> addNewData(
                 writer.write(line);
                 writer.newLine();
             }*/
-            List<BenchmarkEntity> result = (List<BenchmarkEntity>) entityService.getAllTemps();
-            return ResponseEntity.status(HttpStatus.OK).body(result);
-        } catch (CompletionException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+
+//            List<BenchmarkEntity> result = (List<BenchmarkEntity>) entityService.getAllTemps();
+//            return ResponseEntity.status(HttpStatus.OK).body(result);
+//        } catch (CompletionException e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
     }
+
+
     private void logTimestamp(LocalDateTime timestamp) {
         // Log timestamp using SLF4J
         LOGGER.info("Timestamp recorded: {}", timestamp.format(DATE_TIME_FORMATTER));
+    }
+
+    @PutMapping("/{id}")
+    public BenchmarkEntity updateBook(@PathVariable Long id, @RequestBody BenchmarkEntity updatedEntity) {
+        return  entityService.updateBook(id,updatedEntity);
+
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteBook(@PathVariable Long id) {
+        entityService.deleteBook(id);
     }
 }
 

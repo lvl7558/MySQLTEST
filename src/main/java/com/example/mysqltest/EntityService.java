@@ -2,6 +2,7 @@ package com.example.mysqltest;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -48,7 +49,7 @@ public class EntityService {
     }
 
     public List<BenchmarkEntity> getAllTemps() throws IOException {
-        LOGGER.info("JDBS GET  Thread info {} ", Thread.currentThread());
+        //LOGGER.info("JDBS GET  Thread info {} ", Thread.currentThread());
 //        LOGGER.info(" GET");
 //        final long start = System.currentTimeMillis();
 //        LOGGER.info("Start Time: {}", (start));
@@ -74,4 +75,16 @@ public class EntityService {
         return list;
     }
 
+    public BenchmarkEntity updateBook(Long id, BenchmarkEntity updatedEntity) {
+        if (benchmarkRepository.existsById(id)) {
+            updatedEntity.setYear(Math.toIntExact(id));
+            return benchmarkRepository.save(updatedEntity);
+        } else {
+            throw new IllegalArgumentException("No Temp with id " + id + " not found");
+        }
+    }
+
+    public void deleteBook(Long id) {
+        benchmarkRepository.deleteById(id);
+    }
 }
