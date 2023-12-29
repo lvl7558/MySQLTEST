@@ -2,22 +2,23 @@ package com.example.mysqltest;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
-import org.springframework.web.bind.annotation.RequestParam;
 
-
+/**
+ * These are the maximum number of requests that the SQL server can handle
+ * Maximum Pool Size: 10
+ * Minimum Idle Connections: 10
+ */
 @Service
 public class EntityService {
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityService.class);
@@ -47,25 +48,30 @@ public class EntityService {
     }
 
     public List<BenchmarkEntity> getAllTemps() throws IOException {
-        LOGGER.info("JDBS GET");
-        final long start = System.currentTimeMillis();
-        LOGGER.info("Start Time: {}", (start));
+        LOGGER.info("JDBS GET  Thread info {} ", Thread.currentThread());
+//        LOGGER.info(" GET");
+//        final long start = System.currentTimeMillis();
+//        LOGGER.info("Start Time: {}", (start));
         final List<BenchmarkEntity> temps = benchmarkRepository.findAll();
-        final long end = System.currentTimeMillis();
-        LOGGER.info("Elapsed Time: {}", (end - start));
-        LOGGER.info("End Time: {}", (end));
+//        final long end = System.currentTimeMillis();
+//        LOGGER.info("Elapsed Time: {}", (end - start));
+//        LOGGER.info("End Time: {}", (end));
 
-        if (!Files.exists(Path.of("JDBS_time2.csv"))) {
-            Files.createFile(Path.of("JDBS_time2.csv"));
-        }
-
-        // Add data to CSV file
-        try (BufferedWriter writer = Files.newBufferedWriter(Path.of("JDBS_time2.csv"), StandardOpenOption.APPEND)) {
-            String line = ""+(end - start);
-            writer.write(line);
-            writer.newLine();
-        }
+//        if (!Files.exists(Path.of("JDBS_time2.csv"))) {
+//            Files.createFile(Path.of("JDBS_time2.csv"));
+//        }
+//
+//        // Add data to CSV file
+//        try (BufferedWriter writer = Files.newBufferedWriter(Path.of("JDBS_time2.csv"), StandardOpenOption.APPEND)) {
+//            String line = ""+(end - start);
+//            writer.write(line);
+//            writer.newLine();
+//        }
         return temps;
+    }
+    public Optional<BenchmarkEntity> getTemp(int year) throws IOException {
+        Optional<BenchmarkEntity> list = benchmarkRepository.findById((long) year);
+        return list;
     }
 
 }

@@ -23,6 +23,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+
+/**
+ * The rest controller is already acting like a multithreaded enviorment, so each request is already
+ * following a thread per request model
+ *
+ *
+ */
 @RestController
 @RequestMapping("/api/temp")
 public class EntityController {
@@ -51,7 +58,7 @@ public @ResponseBody List<BenchmarkEntity> addNewData(
 ) {
     try {
         // Assuming you have a method to handle the list of temperature data
-        LOGGER.info("HTTP POST}");
+        LOGGER.info("HTTP POST ");
         LocalDateTime timestamp = LocalDateTime.now();
         logTimestamp(timestamp);
         return entityService.saveTemps(jsonRequest.getTemperatureData());
@@ -70,6 +77,9 @@ public @ResponseBody List<BenchmarkEntity> addNewData(
     @RequestMapping(method = RequestMethod.GET)
     public @ResponseBody ResponseEntity<List<BenchmarkEntity>> getAllTemps() {
         try {
+
+            LOGGER.info("HTTP GET Thread info {} ", Thread.currentThread());
+            /**
             LOGGER.info("HTTP GET");
             final long start = System.currentTimeMillis();
             LOGGER.info("Start Time: {}", (start));
@@ -87,7 +97,8 @@ public @ResponseBody List<BenchmarkEntity> addNewData(
                 String line = ""+(end - start);
                 writer.write(line);
                 writer.newLine();
-            }
+            }*/
+            List<BenchmarkEntity> result = (List<BenchmarkEntity>) entityService.getAllTemps();
             return ResponseEntity.status(HttpStatus.OK).body(result);
         } catch (CompletionException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
